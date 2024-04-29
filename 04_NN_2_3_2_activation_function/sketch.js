@@ -72,7 +72,7 @@ function draw() {
 }
 
 function updatePoint(point) {
-    let result = neuralNetwork.classify([point.x, point.y]);
+    let result = neuralNetwork.classify([point.x / windowWidth, point.y / (windowHeight - 40)]);
 
     if (result === 1) {
         fill("green");
@@ -80,5 +80,5 @@ function updatePoint(point) {
         fill("red");
     }
 
-    ellipse(point.x, windowHeight - point.y, 10);
+    ellipse(point.x,  point.y, 20);
 }

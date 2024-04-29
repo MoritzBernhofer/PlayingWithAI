@@ -29,13 +29,13 @@ function Nn(layers) {
         for (let i = 0; i < this.layers.length; i++) {
             for (let j = 0; j < this.layers[i].inNodes_weights.length; j++) {
                 for (let k = 0; k < this.layers[i].inNodes_weights[j].length; k++) {
-                    this.layers[i].inNodes_weights[j][k] = weightSliders[weightIndex].value() / 100;
+                    this.layers[i].inNodes_weights[j][k] = weightSliders[weightIndex].value() / 4;
                     weightIndex++;
                 }
             }
 
             for (let j = 0; j < this.layers[i].outNodes_bias.length; j++) {
-                this.layers[i].outNodes_bias[j] = biasSliders[biasIndex].value();
+                this.layers[i].outNodes_bias[j] = biasSliders[biasIndex].value() / 4;
                 biasIndex++;
             }
         }
