@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AvaloniaProject">
+    <option name="projectPerEditor">
+      <map>
+        <entry key="FlappyBird/App.axaml" value="FlappyBird/FlappyBird.csproj" />
+        <entry key="FlappyBird/Views/MainWindow.axaml" value="FlappyBird/FlappyBird.csproj" />
+      </map>
+    </option>
+  </component>
+</project>
