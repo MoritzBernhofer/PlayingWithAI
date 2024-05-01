@@ -1,0 +1,5 @@
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/pub/FlappyBird.pdb
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/pub/libAvaloniaNative.dylib
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/pub/libHarfBuzzSharp.dylib
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/pub/libSkiaSharp.dylib
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/pub/FlappyBird

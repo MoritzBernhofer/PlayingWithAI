@@ -18,7 +18,7 @@
     </Design.DataContext>
     
     <Canvas Width="1778" Height="1000" x:Name="MyCanvas" >
-        <Image Stretch="UniformToFill" Source="../Assets/Background.jpeg"></Image>
+        <Image Stretch="UniformToFill" x:Name="Background" Source="../Assets/Background.jpeg"></Image>
         <Image Height="42" Width="42"  Name="Bird" Source="../Assets/FlappyBird.png"></Image>
     </Canvas>
 

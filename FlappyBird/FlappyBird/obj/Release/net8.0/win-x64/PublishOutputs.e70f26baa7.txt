@@ -1,0 +1,5 @@
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/win-x64/publish/FlappyBird.pdb
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/win-x64/publish/av_libglesv2.dll
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/win-x64/publish/libHarfBuzzSharp.dll
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/win-x64/publish/libSkiaSharp.dll
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/win-x64/publish/FlappyBird.exe

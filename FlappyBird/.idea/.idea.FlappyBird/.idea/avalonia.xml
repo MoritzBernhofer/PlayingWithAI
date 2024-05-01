@@ -4,6 +4,7 @@
     <option name="projectPerEditor">
       <map>
         <entry key="FlappyBird/App.axaml" value="FlappyBird/FlappyBird.csproj" />
+        <entry key="FlappyBird/Assets/Resources1.axaml" value="FlappyBird/FlappyBird.csproj" />
         <entry key="FlappyBird/Views/MainWindow.axaml" value="FlappyBird/FlappyBird.csproj" />
       </map>
     </option>

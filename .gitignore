@@ -1,1 +1,9 @@
 **/node_modules
+
+**/**/bin/
+**/**/**/bin/
+**/**/**/**/bin/
+/FlappyBird/FlappyBird/bin
+/FlappyBird/FlappyBird/bin
+/FlappyBird/FlappyBird/pub/
+/FlappyBird/FlappyBird/pubWin/

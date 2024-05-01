@@ -1,0 +1,2 @@
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/pubWin/FlappyBird.pdb
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/pubWin/FlappyBird.exe
