@@ -1,2 +1,0 @@
-/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/pub/FlappyBird.pdb
-/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/pub/FlappyBird

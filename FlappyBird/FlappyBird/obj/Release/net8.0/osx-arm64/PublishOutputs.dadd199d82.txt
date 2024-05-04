@@ -1,0 +1,5 @@
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/osx-arm64/publish/FlappyBird.pdb
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/osx-arm64/publish/libAvaloniaNative.dylib
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/osx-arm64/publish/libHarfBuzzSharp.dylib
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/osx-arm64/publish/libSkiaSharp.dylib
+/Users/moritz/Documents/GitHub/PlayingWithAI/PlayingWithAI/FlappyBird/FlappyBird/bin/Release/net8.0/osx-arm64/publish/FlappyBird

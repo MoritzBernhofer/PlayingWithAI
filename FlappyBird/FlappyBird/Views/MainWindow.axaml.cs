@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
@@ -8,6 +9,7 @@ using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using Avalonia.Threading;
 using FlappyBird.DataModels;
 using FlappyBird.ViewModels;
@@ -16,36 +18,48 @@ namespace FlappyBird.Views;
 
 public partial class MainWindow : Window {
     private readonly MainWindowViewModel _mainWindowViewModel;
-    private readonly Image? _flappyBird;
-    private readonly List<Tuple<Image, Image, Pipe>> _pipes = new();
+    private readonly List<Tuple<Image, Bird>> _flappyBirds = new();
+    private readonly List<Tuple<Image, Pipe>> _pipes = new();
     private bool _gameOver = false;
 
     public MainWindow() {
         InitializeComponent();
 
-        _flappyBird = MyCanvas.Children[1] as Image;
-
         _mainWindowViewModel = new MainWindowViewModel();
+
+        var birdImage = new Bitmap(AssetLoader.Open(new Uri("avares://FlappyBird/Assets/FlappyBird.png",
+            UriKind.RelativeOrAbsolute)));
+
+        var birds = _mainWindowViewModel.Birds;
+
+        foreach (var bird in birds) {
+            var image = new Image {
+                Width = 42,
+                Height = 42,
+                Source = birdImage
+            };
+
+            _flappyBirds.Add(new Tuple<Image, Bird>(image, bird));
+            MyCanvas.Children.Add(image);
+        }
 
         var pipes = _mainWindowViewModel.Pipes;
 
+        var bottomPipe = new Bitmap(AssetLoader.Open(new Uri("avares://FlappyBird/Assets/pipe-bottom.png",
+            UriKind.RelativeOrAbsolute)));
+        var topPipe = new Bitmap(AssetLoader.Open(new Uri("avares://FlappyBird/Assets/pipe-top.png",
+            UriKind.RelativeOrAbsolute)));
+
         foreach (var pipe in pipes) {
-            var bottom = new Image {
+            var image = new Image {
                 Width = 360,
                 Height = 655,
-                Source = new Bitmap("../../../Assets/pipe-bottom.png"),
+                Source = pipe.Type == PipeType.BottomPipe ? bottomPipe : topPipe
             };
 
-            var top = new Image() {
-                Source = new Bitmap("../../../Assets/pipe-top.png"),
-                Width = 360,
-                Height = 655
-            };
+            _pipes.Add(new Tuple<Image, Pipe>(image, pipe));
 
-            _pipes.Add(new Tuple<Image, Image, Pipe>(bottom, top, pipe));
-
-            MyCanvas.Children.Add(top);
-            MyCanvas.Children.Add(bottom);
+            MyCanvas.Children.Add(image);
         }
 
         var topLevel = TopLevel.GetTopLevel(this)!;
@@ -61,15 +75,20 @@ public partial class MainWindow : Window {
 
 
     private void HandleKey(object? sender, KeyEventArgs e) {
-        if (e.Key == Key.Space) {
-            _mainWindowViewModel.Bird.Flap();
+        if (e.Key != Key.Space) return;
+
+        foreach (var (image, bird) in _flappyBirds) {
+            bird.Flap();
         }
     }
 
     private void GameLoop() {
-        while (!_gameOver) {
+        while (true) {
             //update game
             _mainWindowViewModel.UpdateGame();
+
+            //get values from birds
+
 
             //draw bird and pipes
             Draw();
@@ -84,45 +103,55 @@ public partial class MainWindow : Window {
 
     private void Draw() {
         Dispatcher.UIThread.Invoke(() => {
-            if (_flappyBird == null) return;
+            foreach (var (image, bird) in _flappyBirds) {
+                if (!bird.IsAlive) continue;
 
-            var bird = _mainWindowViewModel.Bird;
+                var rotateTransform = bird.IsFalling ? new RotateTransform(30) : new RotateTransform(0);
 
-            var rotateTransform = bird.IsFalling ? new RotateTransform(30) : new RotateTransform(0);
+                image.RenderTransform = rotateTransform;
 
-            foreach (var (bottom, top, pipe) in _pipes) {
-                Canvas.SetLeft(top, pipe.X);
-                Canvas.SetTop(top, -pipe.Distance);
-
-                Canvas.SetLeft(bottom, pipe.X);
-                Canvas.SetTop(bottom, 400 + pipe.Distance);
+                Canvas.SetLeft(image, bird.X);
+                Canvas.SetBottom(image, bird.Y);
             }
 
-            _flappyBird.RenderTransform = rotateTransform;
-
-            Canvas.SetLeft(_flappyBird, bird.X);
-            Canvas.SetTop(_flappyBird, bird.Y);
+            foreach (var (image, pipe) in _pipes) {
+                if (pipe.Type == PipeType.BottomPipe) {
+                    Canvas.SetLeft(image, pipe.X);
+                    Canvas.SetBottom(image, -300);
+                }
+                else if(pipe is { Type: PipeType.TopPipe, DistanceBetween: not null }){
+                    Canvas.SetLeft(image, pipe.X);
+                    Canvas.SetBottom(image, (double)(500 + pipe.DistanceBetween));
+                }
+                // Canvas.SetLeft(top, pipe.X);
+                // Canvas.SetTop(top, -pipe.Distance);
+                //
+                // Canvas.SetLeft(bottom, pipe.X);
+                // Canvas.SetTop(bottom, 400 + pipe.Distance);
+            }
         });
     }
 
     private void CheckIfBirdCrashed() {
         Dispatcher.UIThread.Invoke(() => {
-            foreach (var (bottom, top, _) in _pipes) {
-                if (!CheckImagesIntersect(bottom, _flappyBird!) && !CheckImagesIntersect(top, _flappyBird!))
-                    continue;
-                GameOver();
-            }
+            foreach (var (imageBird, bird) in _flappyBirds) {
+                if (!bird.IsAlive) continue;
 
-            if (_mainWindowViewModel.Bird.Y >= 1100) {
-                GameOver();
+                foreach (var (imagePipe, _) in _pipes) {
+                    if (!CheckImagesIntersect(imageBird, imagePipe))
+                        continue;
+                   // bird.IsAlive = false;
+                }
             }
-            
         });
     }
 
     private void GameOver() {
         _gameOver = true;
-        Background.Source = new Bitmap("../../../Assets/game_over.jpeg");
+        var gameOverImg = new Bitmap(AssetLoader.Open(new Uri("avares://FlappyBird/Assets/game_over.jpeg",
+            UriKind.RelativeOrAbsolute)));
+
+        Background.Source = gameOverImg;
     }
 
     private bool CheckImagesIntersect(Layoutable img1, Layoutable img2) {
