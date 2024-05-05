@@ -2,21 +2,12 @@ using System;
 
 namespace FlappyBird.DataModels;
 
-public class Pipe {
-    public Pipe(double x, PipeType type, Random rd) {
-        X = x;
-        Type = type;
+public class Pipe(double x, double StartPos, PipeType type, Random rd) {
+    public PipeType Type { get; private set; } = type;
 
-        if (type == PipeType.TopPipe) {
-            DistanceBetween = rd.Next(50, 150);
-        }
-    }
+    public double X { get; private set; } = x;
 
-    public PipeType Type { get; private set; }
-
-    public double X { get; private set; }
-
-    public double? DistanceBetween { get; }
+    public double DistanceBetween { get; } = rd.Next(25, 75);
     private const double Speed = 8;
 
     public void Update() {
@@ -24,5 +15,9 @@ public class Pipe {
 
         if (X <= 00)
             X = 2100;
+    }
+
+    public void SetToStartPos() {
+        X = StartPos;
     }
 }
