@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -16,37 +17,33 @@ namespace FlappyBird.Views;
 
 public partial class MainWindow : Window {
     private readonly MainWindowViewModel _mainWindowViewModel;
-    
+
     private readonly List<Tuple<Image, Bird>> _birds = [];
-    private int _birdsAlive;
-    
+
     private readonly List<Tuple<Image, Pipe>> _pipes = [];
-    
-    
+    private int _sleepTime = 0;
 
     public MainWindow() {
         InitializeComponent();
 
         _mainWindowViewModel = new MainWindowViewModel();
 
-        var birdImage = new Bitmap(AssetLoader.Open(new Uri("avares://FlappyBird/Assets/FlappyBird.png",
-            UriKind.RelativeOrAbsolute)));
+        CreateBirds();
 
-        var birds = _mainWindowViewModel.Birds;
+        CreatePipes();
 
-        foreach (var bird in birds) {
-            var image = new Image {
-                Width = 42,
-                Height = 42,
-                Source = birdImage
-            };
+        var topLevel = TopLevel.GetTopLevel(this)!;
+        topLevel.KeyDown += HandleKey;
 
-            _birds.Add(new Tuple<Image, Bird>(image, bird));
-            MyCanvas.Children.Add(image);
-        }
+        var gameThread = new Thread(GameLoop) {
+            IsBackground = true,
+            Priority = ThreadPriority.AboveNormal
+        };
 
-        _birdsAlive = _birds.Count;
+        gameThread.Start();
+    }
 
+    private void CreatePipes() {
         var pipes = _mainWindowViewModel.Pipes;
 
         var bottomPipe = new Bitmap(AssetLoader.Open(new Uri("avares://FlappyBird/Assets/pipe-bottom.png",
@@ -65,56 +62,56 @@ public partial class MainWindow : Window {
 
             MyCanvas.Children.Add(image);
         }
+    }
 
-        // var topLevel = TopLevel.GetTopLevel(this)!;
-        // topLevel.KeyDown += HandleKey;
+    private void CreateBirds() {
+        var birdImage = new Bitmap(AssetLoader.Open(new Uri("avares://FlappyBird/Assets/FlappyBird.png",
+            UriKind.RelativeOrAbsolute)));
 
-        var gameThread = new Thread(GameLoop) {
-            IsBackground = true,
-            Priority = ThreadPriority.AboveNormal
-        };
+        var birds = _mainWindowViewModel.Birds;
 
-        gameThread.Start();
+        foreach (var bird in birds) {
+            var image = new Image {
+                Width = 42,
+                Height = 42,
+                Source = birdImage
+            };
+
+            _birds.Add(new Tuple<Image, Bird>(image, bird));
+            MyCanvas.Children.Add(image);
+        }
     }
 
 
-    // private void HandleKey(object? sender, KeyEventArgs e) {
-    //     if (e.Key != Key.Space) return;
-    //
-    //     foreach (var (image, bird) in _flappyBirds) {
-    //         bird.Flap();
-    //     }
-    // }
+    private void HandleKey(object? sender, KeyEventArgs e) {
+        if (e.Key != Key.Space) return;
+
+        _sleepTime = 50;
+    }
 
     private void GameLoop() {
         while (true) {
-            if (_birdsAlive <= 0) {
-                _birdsAlive = _birds.Count;
+            for (var i = 0; i < 10; i++) {
+                if (_birds.Select(bird => bird.Item2).All(bird => !bird.IsAlive)) {
+                    Ga.PopulateNewGeneration(_birds);
 
-                var newBirds = Ga.CreateNewGeneration(_birds.Select(value => value.Item2).ToList());
-
-                for (var i = 0; i < _birds.Count; i++) {
-                    _birds[i] = new Tuple<Image, Bird>(_birds[i].Item1, newBirds[i]);
+                    _mainWindowViewModel.ResetGame();
                 }
-                
-                _mainWindowViewModel.ResetGame();
+
+                //update game
+                _mainWindowViewModel.UpdateGame();
+
+                //get birds to think
+                _mainWindowViewModel.LetBirdsThink();
+
+                //draw bird and pipes
+                Draw();
+
+                //check if Bird hit any pipes or hit the floor
+                CheckIfBirdCrashed();
+
+                Thread.Sleep(_sleepTime);
             }
-            
-            //update game
-            _mainWindowViewModel.UpdateGame();
-
-            //get birds to think
-            foreach (var (_, bird) in _birds) {
-                bird.Think();
-            }
-
-            //draw bird and pipes
-            Draw();
-
-            //check if Bird hit any pipes or hit the floor
-            CheckIfBirdCrashed();
-
-            Thread.Sleep(50);
         }
         // ReSharper disable once FunctionNeverReturns
     }
@@ -137,11 +134,14 @@ public partial class MainWindow : Window {
                     case PipeType.BottomPipe:
                         Canvas.SetLeft(image, pipe.X);
                         Canvas.SetBottom(image, -300 - pipe.DistanceBetween);
+                        Canvas.SetBottom(image, -300 - pipe.DistanceBetween);
                         break;
                     case PipeType.TopPipe:
                         Canvas.SetLeft(image, pipe.X);
                         Canvas.SetBottom(image, 500 + pipe.DistanceBetween);
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
         });
@@ -150,16 +150,16 @@ public partial class MainWindow : Window {
     private void CheckIfBirdCrashed() {
         Dispatcher.UIThread.Invoke(() => {
             foreach (var (imageBird, bird) in _birds) {
-                if (!bird.IsAlive) continue;
-                
                 foreach (var (imagePipe, _) in _pipes) {
-                    if (!CheckImagesIntersect(imageBird, imagePipe) && bird.Y is >= -50 and <= 1050) continue;
-                    
-                    bird.IsAlive = false;
-                    _birdsAlive--;
+                    if (CheckImagesIntersect(imageBird, imagePipe)
+                        || bird.Y is <= -50 or >= 1050
+                        || !bird.IsAlive) {
+                        bird.IsAlive = false;
+                    }
                 }
 
-                bird.Score++;
+                if (bird.IsAlive)
+                    bird.Score++;
             }
         });
     }
@@ -172,7 +172,7 @@ public partial class MainWindow : Window {
     //     Background.Source = gameOverImg;
     // }
 
-    private bool CheckImagesIntersect(Layoutable img1, Layoutable img2) {
+    private static bool CheckImagesIntersect(Layoutable img1, Layoutable img2) {
         var bounds1 = GetBounds(img1);
         var bounds2 = GetBounds(img2);
 
@@ -196,7 +196,7 @@ public partial class MainWindow : Window {
     //     MyCanvas.Children.Add(debugRect);
     // }
 
-    private Rect GetBounds(Layoutable img) {
+    private static Rect GetBounds(Layoutable img) {
         var x = Canvas.GetLeft(img);
         var y = Canvas.GetBottom(img);
 

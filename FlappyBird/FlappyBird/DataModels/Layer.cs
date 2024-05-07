@@ -6,7 +6,7 @@ namespace FlappyBird.DataModels;
 public class Layer {
     private double[,] _inputsWeights;
     private double[] _bias;
-    private Random _rd = new Random(DateTime.Today.Millisecond);
+    private Random _rd = new Random();
 
 
     public Layer(int inputLayers, int outputLayers) {
@@ -18,12 +18,12 @@ public class Layer {
 
         for (var i = 0; i < _inputsWeights.GetLength(0); i++) {
             for (var j = 0; j < _inputsWeights.GetLength(1); j++) {
-                _inputsWeights[i, j] = (_rd.NextDouble() * 2 - 1) * 25;
+                _inputsWeights[i, j] = _rd.NextDouble();
             }
         }
 
         for (var i = 0; i < _bias.Length; i++) {
-            _bias[i] = (_rd.NextDouble() * 2 - 1) * 25;
+            _bias[i] = _rd.NextDouble();
         }
     }
 

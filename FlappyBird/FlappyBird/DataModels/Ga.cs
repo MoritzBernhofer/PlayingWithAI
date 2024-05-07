@@ -1,23 +1,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Avalonia.Controls;
 
 namespace FlappyBird.DataModels;
 
-public class Ga {
-    private static Random rd = new Random(DateTime.Today.Millisecond);
+public static class Ga {
+    private static readonly Random Rd = new Random();
     
-    public static List<Bird> CreateNewGeneration(List<Bird> birds) {
-        var bestBirds = birds.OrderBy(bird => bird.Score).Take(5).ToArray();
-        var newBirds = new List<Bird>();
+    public static void PopulateNewGeneration(List<Tuple<Image, Bird>> birds) {
+        var bestBirds = birds.Select(bird => bird.Item2).OrderBy(bird => bird.Score).Reverse().Take(5).ToArray();
 
-        for (var i = 0; i < birds.Count(); i++) {
-            var parent = bestBirds[rd.Next(0, bestBirds.Length - 1)];
+        Console.WriteLine($"Best Bird: {bestBirds[0].Score}");
+        
+        for (var i = 0; i < birds.Count; i++) {
+            var parent = bestBirds[Rd.Next(0, bestBirds.Length - 1)];
             parent.Mutate();
-            
-            newBirds.Add(parent);
         }
-
-        return newBirds;
     }
 }
